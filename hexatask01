@@ -1,0 +1,37 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# URL to scrape
+url = 'https://example.com/articles'  # Replace with the actual URL
+
+response = requests.get(url)
+
+# Check if the request was successful
+if response.status_code == 200:
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Find the container with articles
+    articles = soup.find_all('div', class_='article')  # Replace with the actual class name
+
+    data = []
+
+    for article in articles:
+        title = article.find('h2').text.strip()  # Adjust as needed
+        link = article.find('a')['href']  # Adjust as needed
+
+        # Ensure the link is absolute
+        if not link.startswith('http'):
+            link = url + link  # Modify based on the URL structure
+
+        data.append({'Title': title, 'URL': link})
+
+    # Create a DataFrame
+    df = pd.DataFrame(data)
+
+    # Save to CSV
+    df.to_csv('articles.csv', index=False)
+
+    print("Data saved to articles.csv")
+else:
+    print(f"Failed to retrieve the webpage: {response.status_code}")
